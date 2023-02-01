@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="English" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="English" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Acquisition package &mdash; RawPower 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Acquisition.NatNet package" href="Acquisition.NatNet.html" />
+    <link rel="prev" title="Configuration package" href="Configuration.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> RawPower
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">App_LWT3 Application:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="App_LWT3.html">App_LWT3 module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">Configuration package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Acquisition package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Acquisition.NatNet.html">Acquisition.NatNet package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Acquisition.Acquisition">Acquisition.Acquisition module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Acquisition.Gui">Acquisition.Gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Acquisition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="BLE.html">BLE package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PreProcessing.html">PreProcessing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Export.html">Export package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Features.html">Features package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Fit.html">Fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ProgressBar.html">ProgressBar package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Notebook.html">Notebook package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">RawPower</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Acquisition package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/rst/Acquisition.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="acquisition-package">
+<h1>Acquisition package<a class="headerlink" href="#acquisition-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Acquisition.NatNet.html">Acquisition.NatNet package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Acquisition.NatNet.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Acquisition.NatNet.html#module-Acquisition.NatNet.NatNet">Acquisition.NatNet.NatNet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Acquisition.NatNet.html#module-Acquisition.NatNet">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Acquisition.Acquisition">
+<span id="acquisition-acquisition-module"></span><h2>Acquisition.Acquisition module<a class="headerlink" href="#module-Acquisition.Acquisition" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Acquisition.Acquisition.continuos_acquiring">
+<code class="sig-prename descclassname">Acquisition.Acquisition.</code><code class="sig-name descname">continuos_acquiring</code><span class="sig-paren">(</span><em class="sig-param">com_number</em>, <em class="sig-param">start_event</em>, <em class="sig-param">stop_event</em>, <em class="sig-param">hide_event</em>, <em class="sig-param">delete_button_event</em>, <em class="sig-param">modalità</em>, <em class="sig-param">id_muscoli</em>, <em class="sig-param">path_directory</em>, <em class="sig-param">description</em>, <em class="sig-param">check_error</em><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Acquisition.continuos_acquiring" title="Permalink to this definition">¶</a></dt>
+<dd><p>continuos acquisition of EMG data and plot of Real_time EMG signals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>com_number</strong> (<em>int</em>) -- numer of the COM port used</p></li>
+<li><p><strong>start_event</strong> (<em>multiprocessing.Event</em>) -- variable that is used to synchronize the different acquisitions</p></li>
+<li><p><strong>stop_event</strong> (<em>multiprocessing.Event</em>) -- variable that is used to stop the registrations at the same time, it is set to TRUE when STOP button of the main window is pressed</p></li>
+<li><p><strong>hide_event</strong> (<em>multiprocessing.Event</em>) -- variable that is used to show/hide the realtime plot</p></li>
+<li><p><strong>delete_button_event</strong> (<em>multiprocessing.Event</em>) -- variable that is used to delete show/hide button</p></li>
+<li><p><strong>modalità</strong> (<em>int</em>) -- acquisition mode (frequencies)</p></li>
+<li><p><strong>id_muscoli</strong> (<em>array_like</em>) -- array of muscle indeces selected on the main window</p></li>
+<li><p><strong>path_directory</strong> (<em>string</em>) -- path of the directory where files will be saved</p></li>
+<li><p><strong>description</strong> (<em>string</em>) -- task's description, used to create a .txt file that describes the task</p></li>
+<li><p><strong>check_error</strong> (<em>bool</em>) -- check for abnormal interruption of Emg acquisition</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="Acquisition.Acquisition.continuos_optitrack">
+<code class="sig-prename descclassname">Acquisition.Acquisition.</code><code class="sig-name descname">continuos_optitrack</code><span class="sig-paren">(</span><em class="sig-param">start_event</em>, <em class="sig-param">stop_event</em>, <em class="sig-param">optitrack_server</em>, <em class="sig-param">check_error</em><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Acquisition.continuos_optitrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>controls optitrack registration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_event</strong> (<em>multiprocessing.Event</em>) -- argument assigned to NatNetClient object to synchronize the registrations start (Emg and Optitrack)</p></li>
+<li><p><strong>stop_event</strong> (<em>multiprocessing.Event</em>) -- variable that is used to stop the registrations at the same time, it is set to TRUE when STOP button of the main window is pressed</p></li>
+<li><p><strong>optitrack_server</strong> (<em>string</em>) -- variable containing optitrack server address (loopback=127.0.0.1)</p></li>
+<li><p><strong>check_error</strong> (<em>Bool</em>) -- variable that is set to TRUE when abnormal interruption of the EMG acquisition occurs</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Acquisition.Gui">
+<span id="acquisition-gui-module"></span><h2>Acquisition.Gui module<a class="headerlink" href="#module-Acquisition.Gui" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Acquisition.Gui.Acquisition_app">
+<em class="property">class </em><code class="sig-prename descclassname">Acquisition.Gui.</code><code class="sig-name descname">Acquisition_app</code><span class="sig-paren">(</span><em class="sig-param">master</em><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>class to control registration operations</p>
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.TAMPLATE_settings">
+<code class="sig-name descname">TAMPLATE_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.TAMPLATE_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the muscles for the selected template</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.TYPE_settings">
+<code class="sig-name descname">TYPE_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.TYPE_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the variable to TRUE or FALSE depending on the acquisition type (TRUE=single, FALSE=double)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.blink">
+<code class="sig-name descname">blink</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.blink" title="Permalink to this definition">¶</a></dt>
+<dd><p>shows recording label and change 'led' color every 500ms</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>calls stops function and close the window</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.scan_BLE">
+<code class="sig-name descname">scan_BLE</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.scan_BLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>scan for BLE devices and show a gui where available BLE could be selected</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.show_hide">
+<code class="sig-name descname">show_hide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.show_hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>shows/hide realtime plot</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the settings and call the acquisition functions on different processors</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.stop">
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>stops the acquisition and closes csv file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Acquisition.Gui.Acquisition_app.thread_delete_button">
+<code class="sig-name descname">thread_delete_button</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.Acquisition_app.thread_delete_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>deletes shows/hide button</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="Acquisition.Gui.show_popup">
+<code class="sig-prename descclassname">Acquisition.Gui.</code><code class="sig-name descname">show_popup</code><span class="sig-paren">(</span><em class="sig-param">master</em>, <em class="sig-param">title</em>, <em class="sig-param">text</em><span class="sig-paren">)</span><a class="headerlink" href="#Acquisition.Gui.show_popup" title="Permalink to this definition">¶</a></dt>
+<dd><p>show a popup with a error message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>master</strong> (<em>tk.Tk</em>) -- parent tk widget</p></li>
+<li><p><strong>title</strong> (<em>str</em>) -- popup title</p></li>
+<li><p><strong>text</strong> (<em>str</em>) -- popup error message</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Acquisition">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Acquisition" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Acquisition.NatNet.html" class="btn btn-neutral float-right" title="Acquisition.NatNet package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Configuration.html" class="btn btn-neutral float-left" title="Configuration package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, LWT3
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@ import scipy
 from scipy.io import wavfile
 import IPython.display as ipd
 import os
-
+from PyQt5.QtGui import QWidget 
 
 file = "C:\\Users\david\OneDrive - Politecnico di Milano\Il_mio_mondo\Corsi Università\Magistrale\Tesi\LWT3\\firstPrototype\Abs_Test_rms.xlsx"
 #folder = "C:\\Users\TestManager\Desktop\Test_Roberto\KLAAS_DEVOS\Abs_Audio.wav"
