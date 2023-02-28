@@ -133,8 +133,20 @@ def TKEO_processing(data, muscle_to_plot, relative_height, i_plot, j_plot):
     return peaks_found, left_ips1, right_ips1
 
 def treshold_detection(data):
+    """
+    We can compute the th in two ways: 
+
+    """
     data = data[treshold_start:treshold_end]
     # data = data[35:85]
+    #my implementation of the thresold
+    data_np= np.asarray(data)
+    rms_data = np.sqrt(np.sum(np.square(data_np))/np.size(data_np)) #rms computation 
+    mean_rms= np.mean(rms_data)
+    thresholdWeight= 0.25
+    mean_rms_threshold= thresholdWeight * mean_rms
+    #Try this threshold  
+    #
     data.index = range(0, data.shape[0])
     mean = data.mean()
     std = data.std()
