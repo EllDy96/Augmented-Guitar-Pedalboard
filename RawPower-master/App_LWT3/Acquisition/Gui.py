@@ -74,7 +74,7 @@ class Acquisition_app():
 
         #file_path=os.path.abspath(os.path.join(__file__, '..','BLE.png'))
         # SPOSTARE L'IMMAGINE ALL'INTERNO DELLA CARTELLA!
-        photo = tk.PhotoImage(file = "C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\GItDesktop\MAE_Thesis\RawPower-master_Roberto\App_LWT3\Acquisition\BLE.png")
+        photo = tk.PhotoImage(file = "C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\GItDesktop\MAE_Thesis\RawPower-master\App_LWT3\Acquisition\BLE.png")
         #photo = tk.PhotoImage(file = "C:\\Users\\rales\OneDrive\Desktop\LWT3\RawPower\RawPower\App_LWT3\Acquisition\BLE.png")
 
         # Resizing image to fit on button 
@@ -147,7 +147,9 @@ class Acquisition_app():
             "RIGHT ARCHER",
             "HANDBIKE",
             "CASHIER",
-            "OTHER"
+            "OTHER",
+            "Guitar 4 muscles", #51 : 'BRACHIORADIALIS SX', 73 : 'EXTENSOR CARPI RADIALIS SX', 31 : 'EXTENSOR CARPI RADIALIS DX', 6 : 'DELTOID LATERAL DX' 
+            "Guitar 8 muscles"    
         ]
 
         self.template_selection= ttk.Combobox(self.master,values=self.TEMPLATES,state='readonly',width=30)
@@ -246,7 +248,6 @@ class Acquisition_app():
             81 : 'VASTUS MEDIALIS SX',
             82 : 'TIBIALIS ANTERIOR SX',
             83 : 'PERONEUS LONGUS SX',
-
             84: 'NOT CONNECTED'
         }
 
@@ -289,7 +290,10 @@ class Acquisition_app():
                                 [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[42]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[49]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[47]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[5]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[2]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[3]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[7]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[8])], #arciere destro
                                 [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[8]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[7]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[6]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[5]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[50]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[49]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[48]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[47])], #handbike
                                 [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[60]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[45]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[47]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[46]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[18]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[3]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[5]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[4])], #cashier
-                                [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84])]] #other
+                                [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84])], #other
+                                [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[51]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[73]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[31]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[6]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[84])],
+                                [list(self.muscoli_sorted.values()).index(self.muscoli_sorted[70]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[73]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[67]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[51]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[28]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[31]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[25]),list(self.muscoli_sorted.values()).index(self.muscoli_sorted[22])]] #] #Guitar
+        #51 : 'BRACHIORADIALIS SX', 73 : 'EXTENSOR CARPI RADIALIS SX', 31 : 'EXTENSOR CARPI RADIALIS DX', 6 : 'DELTOID LATERAL DX'  then all the other are 84: NOT CONNECTED
 
         # Roberto -> da qui in poi ho sostituito tutti i "muscoli_set" con "muscoli_sorted"
 

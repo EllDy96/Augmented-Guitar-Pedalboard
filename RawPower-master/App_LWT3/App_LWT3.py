@@ -28,7 +28,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 
-from sklearn.decomposition import PCA
+#from sklearn.decomposition import PCA -------------------->>> ho commentato quest perchè mi dava errore se avrai malfunzionamenti sai con chi prendertela
 from sklearn.preprocessing import StandardScaler
 from sklearn import preprocessing
 
@@ -1157,7 +1157,7 @@ class Application:
                 self.overlap=float(float(overlap)/1000) #converto il valore da stringa a float e poi divido per mille, per ottenere il valore espresso in secondi e non in millisecondi
                 self.window_size=float(float(window_size)/1000)
                 self.features=False #quando cambio l'overlap la variabile che mi dice se ho già calcolato le features diventa falsa
-                self.statusbar.update_status(
+                self.statusbar.update_status( 
                     f'EMG {self.title_emg}\tMUSCLE {self.muscle_name}\tFs {self.fs_emg}Hz\t'      
                     f'WINDOW SIZE {round(self.window_size*1000,0)}ms\tOVERLAPPING TIME {round(self.overlap*1000,0)}ms\t'       
                     f'\tOPTITRACK {self.title_optitrack}',

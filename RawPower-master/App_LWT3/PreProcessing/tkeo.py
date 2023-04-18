@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, lfilter, freqz
-from scipy.misc import electrocardiogram
-from scipy.signal import find_peaks
-from scipy.signal.filter_design import butter
+from scipy.signal import lfilter, butter
+#from scipy.misc import electrocardiogram
+#from scipy.signal import find_peaks
+#from scipy.signal.filter_design import butter
 from scipy.signal import lfilter, peak_widths, peak_prominences
-from scipy.signal import iirfilter
+#from scipy.signal import iirfilter
 import peakutils
 
 # PERCORSO FILE EMG
@@ -19,11 +19,11 @@ import peakutils
 # path = '\\Users\TestManager\Desktop\python files cashier\Angela_Viscione\REC_COM3_20220512_112426emg.csv'  # 11018-1000
 # path = '\\Users\TestManager\Desktop\python files cashier\Alessandro_Deponti\REC_COM3_20220503_125154emg.csv'    # 18860-2000
 #path = '\\Users\TestManager\Desktop\python files cashier\Chiara_Montrasio\REC_COM3_20220513_122830emg.csv'  # 13685-2000
-path = '\\Users\TestManager\Desktop\python files cashier\Tania_Brusati\REC_COM3_20220406_114747emg.csv' # 10501 - 1000
+#path = '\\Users\TestManager\Desktop\python files cashier\Tania_Brusati\REC_COM3_20220406_114747emg.csv' # 10501 - 1000
 
-df = pd.read_csv(path, delimiter=";")
+#df = pd.read_csv(path, delimiter=";")
 
-dove_salvare = '\\Users\TestManager\Desktop\python files cashier\Tania_Brusati\muscles_activity_TKEO.csv'
+#dove_salvare = '\\Users\TestManager\Desktop\python files cashier\Tania_Brusati\muscles_activity_TKEO.csv'
 campioni_da_scartare=   10501 - 1000 # artefatti del filtro interno alla scheda, dobbiamo togliere il primo secondo di samples [1000 samples]
 treshold_start = 178000 # no sono sample del segnale, non so perchè ma sono samples
 treshold_end = 182000   #
@@ -127,9 +127,8 @@ def TKEO_processing(data, muscle_to_plot, relative_height, i_plot, j_plot):
     for i in range (0, len(h_eval)):
         axs[i_plot, j_plot].hlines(y=h_eval[i], xmin=left_ips1[i], xmax=right_ips1[i], color="blue")
 
-    
-
     axs[i_plot, j_plot].plot(data_TKEO_filtered)
+
     return peaks_found, left_ips1, right_ips1
 
 def treshold_detection(data):
@@ -153,7 +152,141 @@ def treshold_detection(data):
     cost = 6
     treshold = mean + cost*std
     return treshold
+"""
+def time_conversion(array):
+    for ms in left_ips1:
+       duration = ms
+       minutes, seconds = divmod(duration / 1000, 60)
+       time = f'{minutes:0>2.0f}:{seconds:.3f}'
+       time_converted.append(time)
+    return time_converted
+"""
 
+################################################################## CLASSE #################################################°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°###################
+##################################################################        #########################################################################
+##################################################################        #################################################################################
+##################################################################        #################################################################################
+##################################################################        ################################################################################
+class tkeo_filtering:
+
+    """
+    This class take in input your RawPower CVS file, it remove the spikes creating a new filtered csv files in the path that you specify.
+    Args:
+        cvsPath (string): original csv path of the rawPower Recording 
+        finalPath(string): the path where you want to save the filtered dataframe 
+        rel_height(float): non ho ancora capito cosa sia 
+        nColumns_plot(int): number of columns of the final plot
+        nRows_plot(int): number of raws of the final plot
+
+    Returns:
+        matplotlib plot: the plot with the spikes that will be removed 
+        pandas dataframes: the peaks filtered dataframess
+    """
+    #costructore
+    def __init__(self, csvPath, finalPath, rel_height= 0.96, nColumns_plot = 4, nRows_plot= 2):
+        self.csvPath= csvPath
+        self.finalPath= finalPath
+        self.df = pd.read_csv(self.csvPath, delimiter=";") #create the dataframe for the istance 
+        self.rel_height= rel_height
+        self.muscles = self.df.columns.values[3:-1] # get the list of muscles for the specific acquisition, discarding the first 3 columns equal to 'TIMESTAMP', 'STREAM_ID', 'SEQUENCE'
+        #column.values method returns an array of index. SPEREMO!
+        self.nColumns_plot = nColumns_plot
+        self.nRows_plot = nRows_plot
+        self.peaks_found = np.empty(len(self.muscles))
+        self.left_ips = np.empty(len(self.muscles))
+        self.right_ips = np.empty(len(self.muscles))
+        self.time_start = np.empty(len(self.muscles))
+        self.time_end = np.empty(len(self.muscles))
+        self.min_len = []
+        self.peak_to_be_deleted = []
+        self.peak_to_be_deleted2 = []
+        self.mini= 0
+        self.time_converted = []
+        self.final_df = {}
+
+    #method to apply a time conversion uin the takeo_computation
+    def time_conversion(array):
+        time_converted = []
+        for ms in array:
+            duration = ms
+            minutes, seconds = divmod(duration / 1000, 60)
+            time = f'{minutes:0>2.0f}:{seconds:.3f}'
+            time_converted.append(time)
+        return time_converted
+
+    
+    def Takeo_computation(self):
+        fig, axs = plt.subplots(self.nRows_plot,self.nColumns_plot, sharex=True)
+        for j in range (self.nRows_plot):
+            for k in range(self.nColumns_plot):
+                for i in range(len(self.muscles)):
+                    self.peaks_found[i], self.left_ips[i], self.right_ips[i] = TKEO_processing(self.df, self.muscles[i], self.rel_height, j , k)   
+                   
+        for i in range(len(self.muscles)):
+            self.min_len.append(len(self.peaks_found[i]))
+        
+        for i in range(len(self.muscles)):
+            if self.min_len[i] < 51:
+                self.peak_to_be_deleted.append(i)
+                self.peak_to_be_deleted2.append(i)
+
+        for i in range(len(self.muscles)):
+            if self.min_len[i] < 51:
+                self.peak_to_be_deleted.append(i)
+                self.peak_to_be_deleted2.append(i)
+        #TOGLIE I PEAK AGGIUNTI A TO_BE_DELATED DA MIN_LEN 
+        for i in range(len(self.peak_to_be_deleted)):
+            popped = self.min_len.pop(self.peak_to_be_deleted[i])
+            print('POPPED: ', popped)
+            print('indec ', self.peak_to_be_deleted[i])
+            for j in range(i, len(self.peak_to_be_deleted)):
+                self.peak_to_be_deleted[j] = self.peak_to_be_deleted[j]-1
+        
+        self.mini = min(self.min_len)
+        if(self.mini > 52): 
+            self.mini = 52
+
+        for i in range(len(self.muscles)):
+            if not i in self.peak_to_be_deleted2:
+                self.peaks_found[i] = self.peaks_found[i][0:self.mini]
+                self.left_ips[i] = self.left_ips[i][0:self.mini]
+                self.right_ips[i] = self.right_ips[i][0:self.mini]
+
+        for i in range(len(self.left_ips)):
+           self.left_ips[i] = np.round(self.left_ips[i])
+
+        for i in range(len(self.right_ips)):
+           self.right_ips[i] = np.round(self.right_ips[i])
+
+        for i in range(len(self.left_ips)):
+           self.time_start[i] = time_conversion(self.peak.left_ips[i])
+
+        for i in range(len(self.right_ips)):
+           self.time_end[i] = time_conversion(self.right_ips[i])
+        
+        for i in range(len(self.muscles)):
+            if not i in self.peak_to_be_deleted2:
+                self.final_df[self.muscles[i]] = self.left_ips[i]
+                self.final_df[self.muscles[i]] = self.right_ips[i]
+        
+        self.final_df = pd.DataFrame(self.final_df)
+        return plt.show(), self.final_df
+##allora sei arrivato a n_rows e NColumns devi capire come iterare tra le righe e le colonne 
+
+   
+
+
+
+    
+###Class testing 
+firstTry = tkeo_filtering(csvPath="C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\Recordings\Davide_Lionetti\\1 Arpeggio_20230222_140600\\arpeggio.csv",finalPath= "C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\Recordings\Davide_Lionetti\\1 Arpeggio_20230222_140600")
+    
+
+    
+    
+
+    
+# df.drop: Drop specified labels from rows or columns.
 df_ErectorSpinaeSx = df.drop(['TIMESTAMP', 'STREAM_ID', 'SEQUENCE',
     ' Infraspinatus  Sx ', ' Upper  Trapezius  Sx ',
     ' Latissimus  Dorsi  Sx ', ' Upper  Trapezius  Dx ',
@@ -212,6 +345,7 @@ peaks_found_8, left_ips8, right_ips8 = TKEO_processing(df_InfraspinatusDx, ' Inf
 
 plt.show()
 
+# COSA è QUESTA COSA??
 min_len = []
 
 min_len.append(len(peaks_found_1))
@@ -230,7 +364,7 @@ for i in range(0, 7):
     if min_len[i] < 51:
         to_be_deleted.append(i)
         to_be_deleted2.append(i)
-
+#TOGLIE I PEAK AGGIUNTI A TO_BE_DELATED DA MIN_LEN 
 for i in range(0, len(to_be_deleted)):
     popped = min_len.pop(to_be_deleted[i])
     print('POPPED: ', popped)
@@ -243,6 +377,7 @@ print(to_be_deleted)
 print(to_be_deleted2)
 mini = min(min_len)
 
+## PERCHè?????????
 if(mini > 52):
     mini = 52
 
@@ -304,6 +439,7 @@ right_ips6 = np.round(right_ips6)
 right_ips7 = np.round(right_ips7)
 right_ips8 = np.round(right_ips8)
 
+###COSA è STA COSA 
 
 time_converted = []
 def time_conversion(array):
@@ -317,7 +453,7 @@ def time_conversion(array):
 time_start1 = time_conversion(left_ips1)
 time_end1 = time_conversion(right_ips1)
 
-time_start2 = time_conversion(left_ips1)
+time_start2 = time_conversion(left_ips2)
 time_end2 = time_conversion(right_ips2)
 
 time_start3 = time_conversion(left_ips3)
@@ -339,7 +475,7 @@ time_start8 = time_conversion(left_ips8)
 time_end8 = time_conversion(right_ips8)
 
 final_df = {}
-
+### MI SPIEGHI COSA C** STAI FACENDO PER FAVORE, CON GARBO 
 if not 0 in to_be_deleted2:
     final_df['Erector_Spinae_Sx_LEFT'] = left_ips1
     final_df['Erector_Spinae_Sx_RIGHT'] = right_ips1
@@ -374,6 +510,7 @@ if not 7 in to_be_deleted2:
 
 
 #SCRIVO IL DATAFRAME
+#GRAZIE DAVVERO
 # final_df = pd.DataFrame({'Erector_Spinae_Sx_LEFT':left_ips1, 'Erector_Spinae_Sx_RIGHT':right_ips1, 'Upper_Trapezius_Sx_LEFT':left_ips2, 'Upper_Trapezius_Sx_RIGHT':right_ips2, 'Latissimus_Dorsi_Sx_LEFT':left_ips3, 'Latissimus_Dorsi_Sx_RIGHT':right_ips3, 'Infraspinatus_Sx_LEFT':left_ips4, 'Infraspinatus_Sx_RIGHT':right_ips4,
 #                         'Erector_Spinae_Dx_LEFT':left_ips5, 'Erector_Spinae_Dx_RIGHT':right_ips5, 'Upper_Trapezius_Dx_LEFT':left_ips6, 'Upper_Trapezius_Dx_RIGHT':right_ips6, 'Latissimus_Dorsi_Dx_LEFT':left_ips7, 'Latissimus_Dorsi_Dx_RIGHT':right_ips7, 'Infraspinatus_Dx_LEFT':left_ips8, 'Infraspinatus_Dx_RIGHT':right_ips8})
 final_df = pd.DataFrame(final_df)

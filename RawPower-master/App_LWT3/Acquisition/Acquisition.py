@@ -10,7 +10,7 @@ from Acquisition import NatNet #importo la classe NatNetClient per gestire la re
 #from NatNet import NatNet
 #from NatNet.NatNet import NatNetClient
 
-
+from scipy import signal
 import serial 
 from serial import Serial
 #import pyserial as serial
@@ -45,6 +45,7 @@ import numpy as np
 import math
 
 try:
+
     from PyQt6.QtGui import QFont, QIcon
     from PyQt6.QtWidgets import (QWidget, QPlainTextEdit, QLabel, QPushButton,
                                  QHBoxLayout, QVBoxLayout, QGridLayout)
@@ -65,7 +66,7 @@ parser = argparse.ArgumentParser()
 # OSC server ip
 parser.add_argument("--ip", default='127.0.0.1', help="The ip of the OSC server")
 # OSC server port (check on SuperCollider)
-parser.add_argument("--port", type=int, default=57120, help="The port the OSC server is listening on")
+parser.add_argument("--port", type=int, default=12000, help="The port the OSC server is listening on")
 
 # Initializing Ports
 # each one will send the information of a specific channel
@@ -387,8 +388,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
             22 : 'Anterior Deltoid Dx',
             23 : 'Triceps Long Head Dx',
             24 : 'Triceps Lateral Head Dx',
-            25 : 'Biceps Brachii Short Head Dx',
-            26 : 'Biceps Brachi Long Head Dx',
+            25 : 'Biceps Brachii Short Head Dx', #inner Bicepts
+            26 : 'Biceps Brachi Long Head Dx',   #outer Bicepts 
             27 : 'Palmaris Longus Dx',
             28 : 'Flexor Carpi Radialis Dx',
             29 : 'Pronator Teres Dx',
@@ -538,16 +539,30 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                 self.lap_count = self.lap_count+1
 
             def on_timer(self, event):
+
                 """Acquires and adds some data at the end of each signal (real-time signals)."""
+                #implementa una normalizazione automatica con un max e un min precomputato 
+                def normalization(vect, new_min= 0.2,new_max= 1):
+                    """
+                    Normalize a vector to a custum range
+                    """
+                    #vect = np.asarray(vect)
+                    old_min= 20
+                    old_max= 150
+                    normal_vect= (vect - old_min) * (new_max - new_min) / (old_max - old_min) + new_min
+                    return normal_vect #return the normalized vector
+                                
                 try:
                     #k = 20 #vecchio valore di k
-                    k = 64  #number of new points to be displayed (k new points will be added and the first 20 points will be delated) the frequency of acquisition is fs/k
+                    k_osc = 25   #number of new points to be displayed (k new points will be added and the first 20 points will be delated) the frequency of acquisition is fs/k
                     #se aumento k manda meno accquisizioni al secondo, quindi il valore sarù più smooth
-
+                    # k = #di sample campionati prima di essere processiti ed inviati, 
                     #k_osc = 256
-                    i=k
+                    #if i put a k_osc of 25 wiht a Fs= 1000 I will have the osc window lenght=25*20=500 ms 
+                    k = i =  400
+                    #i = k/2 #50% overlap
                     #lists that will contain the new points
-                    g00=[]
+                    g00=[] # ogni lista avrà alla fine di ogni ciclo k elementi prima di essere spedita via OSC
                     g01=[]
                     g02=[]
                     g03=[]
@@ -555,24 +570,34 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                     g11=[]
                     g12=[]
                     g13=[]
+                    #definine the lists for  plotting, different from the feature computetion lists
+                    g00_plot=[] 
+                    g01_plot=[]
+                    g02_plot=[]
+                    g03_plot=[]
+                    g10_plot=[]
+                    g11_plot=[]
+                    g12_plot=[]
+                    g13_plot=[]
 
+                    #liste utilizzate per capire i tempi macchina impiegati per eseguire ogni operazione in realtime prima di spedire il dato 
                     readings = []
                     packings = []
                     hampels = []
                     sends = []
 
-
                     try:
-                        while (i and not stop_event.is_set()):  # k acquisitions if button stop is not pressed
+                        #I take i sample then i compute the feature
+                        while (i and not stop_event.is_set()):  # i acquisitions if button stop is not pressed
 
                             pre_reading = datetime.datetime.now()
-                            print("pre-reading: ", pre_reading)
-                            s=ser.read(20)
+                            #print("pre-reading: ", pre_reading)
+                            s=ser.read(20) # it return 20 bytes at a time 
 
-                            post_reading = datetime.datetime.now()
-                            print("post-reading, pre-packing: ", post_reading)
+                            post_reading = datetime.datetime.now()# it return a new datatime obj with multiple attribut
+                            #print("post-reading, pre-packing: ", post_reading)
                             reading_time = post_reading.microsecond - pre_reading.microsecond
-                            print("reading time: ", reading_time)
+                            #print("reading time: ", reading_time)
                             readings.append(reading_time)
 
                             stream_id=s[-2]  # da protocollo l'informazione dello stream è nel penultimo byte
@@ -582,7 +607,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                             g0_ch2=int.from_bytes(s[11:14], byteorder='little', signed=True)
                             g0_ch3=int.from_bytes(s[14:17], byteorder='little', signed=True)
                             # ALLA SECONDA ITERAZIONE VADO A LEGGERE L'INFORMAZIONE DEGLI ALTRI 4 CANALI
-                            s=ser.read(20)
+                            s=ser.read(20) 
                             g1_ch0=int.from_bytes(s[5:8], byteorder='little', signed=True)  # l'informazione del sensore è codificata su 3Byte, nella posizione indicata
                             g1_ch1=int.from_bytes(s[8:11], byteorder='little', signed=True)
                             g1_ch2=int.from_bytes(s[11:14], byteorder='little', signed=True)
@@ -596,17 +621,20 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                                 LAP = np.nan
 
                             if(self.check_primo_tempo):  # entra solamente quando passa un tempo specifico (inizializzata a True per stampare il tempo del primo campione)
-                                self.primo_tempo=self.timestamp+datetime.timedelta(0,10)  # dopo 10 secondi controllerò il numero di campioni in questo intervallo e scriverò il timestamp
-                                filewriter.writerow([self.timestamp,stream_id,sequence,g0_ch0,g0_ch1,g0_ch2,g0_ch3,g1_ch0,g1_ch1,g1_ch2,g1_ch3, LAP]) #scrivo sul file csv
+                                #introduce 10 secondi di attesa prima di inizializzare la connessione
+                                self.primo_tempo= self.timestamp+datetime.timedelta(0,10) # primo tempo prende il tempo attuale e ci somma 10 sec, dopo 10 secondi controllerò il numero di campioni in questo intervallo e scriverò il timestamp
+                                #if 10 second are already passed I insert the timestamp, otherwise I set the time stamp to nan    
+                                filewriter.writerow([self.timestamp,stream_id,sequence,g0_ch0,g0_ch1,g0_ch2,g0_ch3,g1_ch0,g1_ch1,g1_ch2,g1_ch3, LAP]) #scrivo sul file csv al timestamp attuale
                                 self.check_primo_tempo=False  # variabile diventa falsa
                                 self.lap_inserted = False
                             else:
+                                #writing che channels values but with timestamp equal to nan 
                                 filewriter.writerow([np.nan,stream_id,sequence,g0_ch0,g0_ch1,g0_ch2,g0_ch3,g1_ch0,g1_ch1,g1_ch2,g1_ch3, LAP])  # scrivo sul file csv, il timestamp in questo caso sarà NaN
                                 self.lap_inserted = False
 
                             self.count=self.count+1  # conto il numero di acquisizioni
                             
-                            g00.append(g0_ch0)
+                            g00.append(g0_ch0) 
                             g01.append(g0_ch1)
                             g02.append(g0_ch2)
                             g03.append(g0_ch3)
@@ -615,78 +643,69 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                             g12.append(g1_ch2)
                             g13.append(g1_ch3)
 
-                            i=i-1
-                        #esco dal ciclo while quando ho effettuato 20 acquisizioni (aggiorno il grafico ogni 20 campioni)
+                            g00_plot.append(g0_ch0) 
+                            g01_plot.append(g0_ch1)
+                            g02_plot.append(g0_ch2)
+                            g03_plot.append(g0_ch3)
+                            g10_plot.append(g1_ch0)
+                            g11_plot.append(g1_ch1)
+                            g12_plot.append(g1_ch2)
+                            g13_plot.append(g1_ch3)
+                            #quando implemento l'hop-size
+                            #if len(g00) < 500 and i == 0:
+                            #    i = k/2
+                            
+                            i-= 1
                         
-                        #casting from list to np.array and float32
-                        g00=np.asarray([i * amplitudes for i in g00])
-                        g00.astype(np.float32)
-                        g01=np.asarray([i * amplitudes for i in g01])
-                        g01.astype(np.float32)
-                        g02=np.asarray([i * amplitudes for i in g02])
-                        g02.astype(np.float32)
-                        g03=np.asarray([i * amplitudes for i in g03])
-                        g03.astype(np.float32)
-                        g10=np.asarray([i * amplitudes for i in g10])
-                        g10.astype(np.float32)
-                        g11=np.asarray([i * amplitudes for i in g11])
-                        g11.astype(np.float32)
-                        g12=np.asarray([i * amplitudes for i in g12])
-                        g12.astype(np.float32)
-                        g13=np.asarray([i * amplitudes for i in g13])
-                        g13.astype(np.float32)
+                      
+                        sos = signal.butter(5, [30,350], 'bandpass', fs=1000, output='sos') #second order section filter band pass
 
+                        ##########################################PLOTTING ARRAYS#########################
+                        #casting from list to np.array and float32 then applying a band pass filter 
+                        g00_plot= np.asarray([i * amplitudes for i in g00_plot])
+                        g00_plot.astype(np.float32)
+                        g00_plot= signal.sosfilt(sos,g00_plot)
+
+                        #butter(order=5, 20, fs=1000, btype='highpass', analog=False, output= 'sos')
+                        g01_plot=np.asarray([i * amplitudes for i in g01_plot])
+                        g01_plot.astype(np.float32)
+                        g01_plot= signal.sosfilt(sos,g01_plot)
+
+                        g02_plot=np.asarray([i * amplitudes for i in g02_plot])
+                        g02_plot.astype(np.float32)
+                        g02_plot= signal.sosfilt(sos,g02_plot)
+
+                        g03_plot=np.asarray([i * amplitudes for i in g03_plot])
+                        g03_plot.astype(np.float32)
+                        g03_plot= signal.sosfilt(sos,g03_plot)
+
+                        g10_plot=np.asarray([i * amplitudes for i in g10_plot ])
+                        g10_plot.astype(np.float32)
+                        g10_plot= signal.sosfilt(sos,g10_plot)
+
+                        g11_plot=np.asarray([i * amplitudes for i in g11_plot])
+                        g11_plot.astype(np.float32)
+                        g11_plot= signal.sosfilt(sos,g11_plot)
+
+                        g12_plot=np.asarray([i * amplitudes for i in g12_plot])
+                        g12_plot.astype(np.float32)
+                        g12_plot= signal.sosfilt(sos,g12_plot)
+
+                        g13_plot=np.asarray([i * amplitudes for i in g13_plot])
+                        g13_plot.astype(np.float32)
+                        g13_plot= signal.sosfilt(sos,g13_plot)
+                      
+                        
                         post_packing = datetime.datetime.now()
-                        print("post-packing, pre-Hampeling: ", post_packing)
+                        #print("post-packing, pre-Hampeling: ", post_packing)
                         packing_time = post_packing.microsecond - post_reading.microsecond
-                        print("packing time: ", packing_time)
+                        #print("packing time: ", packing_time)
                         packings.append(packing_time)
 
-                        #if np.max(g00) > last_max_00:
-                            #last_max_00 = np.max(g00)
-                        #if np.max(g01) > last_max_01: 
-                            #last_max_01 = np.max(g01)
-                        #if np.max(g02) > last_max_02: 
-                            #last_max_02 = np.max(g02)
-                        #if np.max(g03) > last_max_03: 
-                            #last_max_03 = np.max(g03)
-                        #if np.max(g10) > last_max_10: 
-                            #last_max_10 = np.max(g10)
-                        #if np.max(g11) > last_max_11: 
-                            #last_max_11 = np.max(g11)
-                        #if np.max(g12) > last_max_12: 
-                            #last_max_12 = np.max(g12)
-                        #if np.max(g13) > last_max_13: 
-                            #last_max_13 = np.max(g13)
-                         
-                        #client1.send_message('/channel_0_0', hampel(g00 / last_max_00))   
-                        #client2.send_message('/channel_0_1', hampel(g01 / last_max_01))   
-                        #client3.send_message('/channel_0_2', hampel(g02 / last_max_02))   
-                        #client4.send_message('/channel_0_3', hampel(g03 / last_max_03))   
-                        #client5.send_message('/channel_1_0', hampel(g10 / last_max_10))   
-                        #client6.send_message('/channel_1_1', hampel(g11 / last_max_11))   
-                        #client7.send_message('/channel_1_2', hampel(g12 / last_max_12)) 
-                        #client8.send_message('/channel_1_3', hampel(g13 / last_max_13)) 
+                        #################################### FEATURE ARRAY ##############################
 
-                        #client1.send_message('/channel_0_0', g00 / last_max_00)   
-                        #client2.send_message('/channel_0_1', g01 / last_max_01)   
-                        #client3.send_message('/channel_0_2', g02 / last_max_02)   
-                        #client4.send_message('/channel_0_3', g03 / last_max_03)   
-                        #client5.send_message('/channel_1_0', g10 / last_max_10)   
-                        #client6.send_message('/channel_1_1', g11 / last_max_11)   
-                        #client7.send_message('/channel_1_2', g12 / last_max_12) 
-                        #client8.send_message('/channel_1_3', g13 / last_max_13) 
-
-                        #client1.send_message('/channel_0_0', g00 / np.max(g00))   
-                        #client2.send_message('/channel_0_1', g01 / np.max(g01))   
-                        #client3.send_message('/channel_0_2', g02 / np.max(g02))   
-                        #client4.send_message('/channel_0_3', g03 / np.max(g03))   
-                        #client5.send_message('/channel_1_0', g10 / np.max(g10))   
-                        #client6.send_message('/channel_1_1', g11 / np.max(g11))   
-                        #client7.send_message('/channel_1_2', g12 / np.max(g12)) 
-                        #client8.send_message('/channel_1_3', g13 / np.max(g13)) 
-
-
+                        """ Hampel function to smooth out the singnal"""
+                        #FIRST WE REMOVE THE PEAKS WITH HAMPEL 
                         g00_h, idx_00, medians_00, sd_00 = hampel(g00)
                         g01_h, idx_01, medians_01, sd_01 = hampel(g01)
                         g02_h, idx_02, medians_02, sd_02 = hampel(g02)
@@ -696,28 +715,138 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         g12_h, idx_12, medians_12, sd_12 = hampel(g12)
                         g13_h, idx_13, medians_13, sd_13 = hampel(g13)
 
+                        #computing the hampel computation time
                         post_hampeling = datetime.datetime.now()
-                        print("post-Hampeling, pre-sending: ", post_hampeling)
+                        #print("post-Hampeling, pre-sending: ", post_hampeling)
                         hamepling_time = post_hampeling.microsecond - post_packing.microsecond
-                        print("Hampeling time: ", hamepling_time)
+                        #print("Hampeling time: ", hamepling_time)
                         hampels.append(hamepling_time)
 
+                        #THEN WE APPLY THE BAND PASS TO FUTHER REMOVE REMAIN NOISE 
+
+                        g00_h_bandpassed= signal.sosfilt(sos, g00_h.astype(np.float32))
+                        g01_h_bandpassed= signal.sosfilt(sos,g01_h.astype(np.float32))
+                        g02_h_bandpassed= signal.sosfilt(sos,g02_h.astype(np.float32))
+                        g03_h_bandpassed= signal.sosfilt(sos,g03_h.astype(np.float32))
+                        g10_h_bandpassed= signal.sosfilt(sos,g10_h.astype(np.float32))
+                        g11_h_bandpassed= signal.sosfilt(sos,g11_h.astype(np.float32))
+                        g12_h_bandpassed= signal.sosfilt(sos,g12_h.astype(np.float32))
+                        g13_h_bandpassed= signal.sosfilt(sos,g13_h.astype(np.float32))
+
+                    
+                        
+
+                        osc_list_RMS_firstGrad_secondGrad = [] 
+                        
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g00_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g01_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g02_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g03_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g10_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g11_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g12_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g13_h_bandpassed))
+
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g00_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g01_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g02_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g03_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g10_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g11_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g12_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g13_h_bandpassed)))
+
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g00_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g01_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g02_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g03_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g10_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g11_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g12_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g13_h_bandpassed))))
+    
+                       
+                        osc_list_RMS=[] #per ogni channel costruisco una lista di 4 elem che mando al wekinator con 4 input 
+                        #appending the first features in the first 4 inputs
+                        osc_list_RMS.append(normalization(ZC(g00)))
+                        osc_list_RMS.append(normalization(ZC(g01)))
+                        osc_list_RMS.append(normalization(ZC(g02)))
+                        osc_list_RMS.append(normalization(ZC(g03)))
+                        osc_list_RMS.append(normalization(ZC(g10)))
+                        
+                        osc_list_RMS.append(normalization(ZC(g12)))
+                        osc_list_RMS.append(normalization(ZC(g13)))
+
+                        #al secondo wekinator mando una lista con 8 elementi, 4 di ZC e 4 di MAV
+
+                        osc_list_ZC_MAV = []
+                        osc_list_zc_mav_rms = [] # it is a list 0 32 params 
+
+                        osc_list_ZC_MAV.append(ZC(g00_plot))
+                        osc_list_ZC_MAV.append(ZC(g01_plot))
+                        osc_list_ZC_MAV.append(ZC(g02_plot))
+                        osc_list_ZC_MAV.append(ZC(g03_plot))
+                        
+                        osc_list_ZC_MAV.append(MAV(g00_plot))
+                        osc_list_ZC_MAV.append(MAV(g01_plot))
+                        osc_list_ZC_MAV.append(MAV(g02_plot))
+                        osc_list_ZC_MAV.append(MAV(g03_plot))
+
+
+                        osc_list_ZC_MAV.append(ZC(g10_plot))
+                        osc_list_ZC_MAV.append(ZC(g11_plot))
+                        osc_list_ZC_MAV.append(ZC(g12_plot))
+                        osc_list_ZC_MAV.append(ZC(g13_plot))
+
+                        osc_list_ZC_MAV.append(MAV(g10_plot))
+                        osc_list_ZC_MAV.append(MAV(g11_plot))
+                        osc_list_ZC_MAV.append(MAV(g12_plot))
+                        osc_list_ZC_MAV.append(MAV(g13_plot))
+
+                        #24 vals w/ 3 features
+                        osc_list_zc_mav_rms.append(normalization(ZC(g00_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g01_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g02_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g03_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g10_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g11_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g12_plot)))
+                        osc_list_zc_mav_rms.append(normalization(ZC(g13_plot)))
+
+                        osc_list_zc_mav_rms.append(MAV(g00_plot))
+                        osc_list_zc_mav_rms.append(MAV(g01_plot))
+                        osc_list_zc_mav_rms.append(MAV(g02_plot))
+                        osc_list_zc_mav_rms.append(MAV(g03_plot))
+                        osc_list_zc_mav_rms.append(MAV(g10_plot))
+                        osc_list_zc_mav_rms.append(MAV(g11_plot))
+                        osc_list_zc_mav_rms.append(MAV(g12_plot))
+                        osc_list_zc_mav_rms.append(MAV(g13_plot))
+
+                        osc_list_zc_mav_rms.append(RMS(g00_plot))
+                        osc_list_zc_mav_rms.append(RMS(g01_plot))
+                        osc_list_zc_mav_rms.append(RMS(g02_plot))
+                        osc_list_zc_mav_rms.append(RMS(g03_plot))
+                        osc_list_zc_mav_rms.append(RMS(g10_plot))
+                        osc_list_zc_mav_rms.append(RMS(g11_plot))
+                        osc_list_zc_mav_rms.append(RMS(g12_plot))
+                        osc_list_zc_mav_rms.append(RMS(g13_plot))
+
+
+
+                        #################################################### OSC SENDING ##########################################################
+
                         #client1.send_message('/channel_0_0', g00_h)   
-                        client1.send_message('/rmsValue',  RMS(g00) / np.max(g00)) #Mando l'RMS al posto che il valore puntuale
-                        client2.send_message('/MAV', MAV(g00) / np.max(g00))  # g01_h client2 # forse il .microsecond potrebbe essere un problema
-                        client3.send_message('/channel_0_2', g02_h)   
-                        client4.send_message('/channel_0_3', g03_h)   
-                        client5.send_message('/channel_1_0', g10_h)   
-                        client6.send_message('/channel_1_1', g11_h)   
-                        client7.send_message('/channel_1_2', g12_h) 
-                        client8.send_message('/channel_1_3', g13_h) 
-
-                        post_sent = datetime.datetime.now()
-                        print("post-sent: ", post_sent)
-                        sending_time = post_sent.microsecond - post_hampeling.microsecond
-                        print("sending time: ", sending_time)
-                        sends.append(sending_time)
-
+                        client5.send_message('/wek/inputs', osc_list_RMS_firstGrad_secondGrad)  # mando al Real time mapping sulla porta 57125: RMS, 1° gradiente, 2° gradiente
+                        client6.send_message('/wek/inputs', osc_list_ZC_MAV)    # mando al DTW sulla porta 57126: 8 input ZC e MAV e lo uso per allenare la regressione in tempo reale
+                        
+                        
+                        #client7.send_message('/wek/inputs',osc_list_ZC_MAV) #sulla porte 57127 mando gli 8 input ZC e MAV per allenare il DTW, quello che classifica le gesture 
+                        #client1.send_message('/channel_1_0',osc_list_RMS)           
+                        #client2.send_message('/wek/inputs', normalization(ZC(g01))) #g01_h client2 # forse il .microsecond potrebbe essere un problema #MAV(g00) / np.max(g00)
+                        #client3.send_message('/wek/inputs', normalization(ZC(g02)))   
+                        #client4.send_message('/wek/inputs', normalization(ZC(g03)))   
+                        #client7.send_message('/channel_1_2', g12) 
+                        #client8.send_message('/channel_1_3', g13)
                         #client1.send_message('/channel_0_0', g00)   
                         #client2.send_message('/channel_0_1', g01)   
                         #client3.send_message('/channel_0_2', g02)   
@@ -726,23 +855,51 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         #client6.send_message('/channel_1_1', g11)   
                         #client7.send_message('/channel_1_2', g12) 
                         #client8.send_message('/channel_1_3', g13) 
+
+
+                        ######################## PRINTING THE FEATURE VALLUES#########################################
+                        print('\n') 
+                        print('the ZCs: ', ZC(g00_plot),' ', ZC(g01_plot), ' ', ZC(g02_plot), ' ',ZC(g03_plot), ' ', ZC(g10_plot), ZC(g10_plot), ' ', ZC(g11_plot), ' ', ZC(g12_plot), ' ', ZC(g13_plot))
+                        print('the MAV : {:0.3f}, {:0.3f},{:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}'.format(MAV(g00_plot), MAV(g01_plot),  MAV(g02_plot), MAV(g03_plot), MAV(g10_plot),MAV(g11_plot), MAV(g12_plot), MAV(g13_plot)))
+                        print('the RMSs raw: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(RMS(g00), RMS(g01), RMS(g02), RMS(g03), RMS(g10), RMS(g11), RMS(g12), RMS(g13)))
+                        formattedList_RMS = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[0:7]]
+                        formattedList_RMSFirstGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[8:15]]
+                        formattedList_RMSSecGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[16:23]]
+                        print('the RMS : ', formattedList_RMS)
+                        print('the RMS  firstGrad: ', formattedList_RMSFirstGrad)
+                        print('the RMS  SectGrad: ', formattedList_RMSSecGrad)
+                        print('\n') 
+
                         
+                        #print('the RMSs: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(osc_list_RMS_firstGrad_secondGrad[0:7]))
+                        #print('the RMS gradient: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(osc_list_RMS_firstGrad_secondGrad[8:15]))
+                        #print('the RMS second gradient: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(osc_list_RMS_firstGrad_secondGrad[16:23])
+                        #print('/n')
+                        
+
+                        post_sent = datetime.datetime.now()
+                        #print("post-sent: ", post_sent)
+                        sending_time = post_sent.microsecond - post_hampeling.microsecond
+                        #print("sending time: ", sending_time)
+                        sends.append(sending_time)
+                        
+                        # y server per il plotting
                         y[:, :-k] = y[:, k:] #tolgo i primi k campioni
     
                         #aggiungo alla fine k campioni
-                        y[3, -k:] = g00_h #the display order starts from the bottom left corner (UPPER LEFT)
-                        y[2, -k:] = g01_h
-                        y[1, -k:] = g02_h
-                        y[0, -k:] = g03_h #(BOTTOM LEFT)
+                        y[3, -k:] = g00_plot #the display order starts from the bottom left corner (UPPER LEFT)
+                        y[2, -k:] = g01_plot
+                        y[1, -k:] = g02_plot
+                        y[0, -k:] = g03_plot #(BOTTOM LEFT)
 
-                        y[7, -k:] = g10_h #(UPPER RIGHT)
-                        y[6, -k:] = g11_h
-                        y[5, -k:] = g12_h
-                        y[4, -k:] = g13_h #(BOTTOM RIGHT)
+                        y[7, -k:] = g10_plot #(UPPER RIGHT)
+                        y[6, -k:] = g11_plot
+                        y[5, -k:] = g12_plot
+                        y[4, -k:] = g13_plot #(BOTTOM RIGHT)
 
                         self.program['a_position'].set_data(y.ravel().astype(np.float32))
                         self.update()
-                    
+
                     except IndexError: #exception se la lettuta da USB risulta incompleta
                         print('Problemi di lettura da USB')
                         app.quit()
