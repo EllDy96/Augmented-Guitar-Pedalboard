@@ -42,7 +42,7 @@
     </wekimini.osc.OSCNumericOutput>
     <wekimini.osc.OSCNumericOutput>
       <name>Del - Mix</name>
-      <min>0.0</min>
+      <min>0.15</min>
       <max>1.0</max>
       <outputType>REAL</outputType>
       <limitType>SOFT</limitType>

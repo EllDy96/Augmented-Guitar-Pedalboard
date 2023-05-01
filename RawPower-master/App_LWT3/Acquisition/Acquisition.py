@@ -658,7 +658,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                             i-= 1
                         
                       
-                        sos = signal.butter(5, [30,350], 'bandpass', fs=1000, output='sos') #second order section filter band pass
+                        sos = signal.butter(5, [30,300], 'bandpass', fs=1000, output='sos') #second order section filter band pass
 
                         ##########################################PLOTTING ARRAYS#########################
                         #casting from list to np.array and float32 then applying a band pass filter 
@@ -779,31 +779,33 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         #al secondo wekinator mando una lista con 8 elementi, 4 di ZC e 4 di MAV
 
-                        osc_list_ZC_MAV = []
-                        osc_list_zc_mav_rms = [] # it is a list 0 32 params 
+                        osc_list_ZC_MAV = [] # 16 params list w/ 2 features 
 
-                        osc_list_ZC_MAV.append(ZC(g00_plot))
-                        osc_list_ZC_MAV.append(ZC(g01_plot))
-                        osc_list_ZC_MAV.append(ZC(g02_plot))
-                        osc_list_ZC_MAV.append(ZC(g03_plot))
+                         
+
+                        osc_list_ZC_MAV.append(float(ZC(g00_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g01_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g02_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g03_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g10_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g11_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g12_plot)))
+                        osc_list_ZC_MAV.append(float(ZC(g13_plot)))
+
+                        
                         
                         osc_list_ZC_MAV.append(MAV(g00_plot))
                         osc_list_ZC_MAV.append(MAV(g01_plot))
                         osc_list_ZC_MAV.append(MAV(g02_plot))
                         osc_list_ZC_MAV.append(MAV(g03_plot))
-
-
-                        osc_list_ZC_MAV.append(ZC(g10_plot))
-                        osc_list_ZC_MAV.append(ZC(g11_plot))
-                        osc_list_ZC_MAV.append(ZC(g12_plot))
-                        osc_list_ZC_MAV.append(ZC(g13_plot))
-
                         osc_list_ZC_MAV.append(MAV(g10_plot))
                         osc_list_ZC_MAV.append(MAV(g11_plot))
                         osc_list_ZC_MAV.append(MAV(g12_plot))
                         osc_list_ZC_MAV.append(MAV(g13_plot))
 
                         #24 vals w/ 3 features
+                        osc_list_zc_mav_rms = [] # it is a list 0 24 params
+
                         osc_list_zc_mav_rms.append(normalization(ZC(g00_plot)))
                         osc_list_zc_mav_rms.append(normalization(ZC(g01_plot)))
                         osc_list_zc_mav_rms.append(normalization(ZC(g02_plot)))
@@ -837,8 +839,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         #client1.send_message('/channel_0_0', g00_h)   
                         client5.send_message('/wek/inputs', osc_list_RMS_firstGrad_secondGrad)  # mando al Real time mapping sulla porta 57125: RMS, 1° gradiente, 2° gradiente
-                        client6.send_message('/wek/inputs', osc_list_ZC_MAV)    # mando al DTW sulla porta 57126: 8 input ZC e MAV e lo uso per allenare la regressione in tempo reale
-                        
+                        client6.send_message('/wek/inputs', osc_list_ZC_MAV)    # mando al DTW sulla porta 57121: 8 input ZC e MAV e lo uso per allenare la regressione in tempo reale
+                        client2.send_message('/wek/inputs', osc_list_ZC_MAV)
                         
                         #client7.send_message('/wek/inputs',osc_list_ZC_MAV) #sulla porte 57127 mando gli 8 input ZC e MAV per allenare il DTW, quello che classifica le gesture 
                         #client1.send_message('/channel_1_0',osc_list_RMS)           
@@ -859,9 +861,15 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         ######################## PRINTING THE FEATURE VALLUES#########################################
                         print('\n') 
-                        print('the ZCs: ', ZC(g00_plot),' ', ZC(g01_plot), ' ', ZC(g02_plot), ' ',ZC(g03_plot), ' ', ZC(g10_plot), ZC(g10_plot), ' ', ZC(g11_plot), ' ', ZC(g12_plot), ' ', ZC(g13_plot))
+                        print('the ZCs: ', ZC(g00_plot),' ', ZC(g01_plot), ' ', ZC(g02_plot), ' ',ZC(g03_plot), ' ', ZC(g10_plot), ZC(g11_plot), ' ', ZC(g12_plot), ' ', ZC(g13_plot))
                         print('the MAV : {:0.3f}, {:0.3f},{:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}'.format(MAV(g00_plot), MAV(g01_plot),  MAV(g02_plot), MAV(g03_plot), MAV(g10_plot),MAV(g11_plot), MAV(g12_plot), MAV(g13_plot)))
                         print('the RMSs raw: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(RMS(g00), RMS(g01), RMS(g02), RMS(g03), RMS(g10), RMS(g11), RMS(g12), RMS(g13)))
+                        formattedList_ZC_1= ["%.2f" % member for member in osc_list_ZC_MAV[0:3]]
+                        formattedList_ZC_2 = ["%.2f" % member for member in osc_list_ZC_MAV[7:13]]
+                        formattedList_ZC = formattedList_ZC_1 + formattedList_ZC_2
+                        formattedList_ZC_MAV= ["%.3f" % member for member in osc_list_ZC_MAV] 
+                        print('the ZC and MAV: ', formattedList_ZC_MAV)
+                        
                         formattedList_RMS = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[0:7]]
                         formattedList_RMSFirstGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[8:15]]
                         formattedList_RMSSecGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[16:23]]
