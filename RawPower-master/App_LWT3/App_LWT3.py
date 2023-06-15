@@ -201,7 +201,7 @@ class Application:
 
         #INIZIALIZZAZIONE PARAMETRI FILTRO
         self.lowcut = 30.0 #inizializzazione frequenza taglia basso
-        self.highcut = 499.9 #inizializzazione frequenza taglia alto (verrà comunque detrminata automaticamente all'apertura del file EMG)
+        self.highcut = 300 #prima era 499.9 #inizializzazione frequenza taglia alto (verrà comunque detrminata automaticamente all'apertura del file EMG)
         self.order=5 #ordine del filtro di butterworth
 
         self.default_low = 30.0 #inizializzazione frequenza taglia basso utilizzata per ripristinare i valori di default
@@ -342,8 +342,9 @@ class Application:
         if not only_DF_MNF: #se devo aggiornare tutti i dataframes
             #CALCOLO DF SEGNALI FILTRATI
             #applicazione filtro passa panda e di notch su ogni colonna (canale) del dataframe Raw
+            #calcoliamo il notch filter e gli diamo come ultimo argomento l'array di dati prefiltrati da un bandpass, cosi da applicare prima il bandpass e poi il notch
             self.Df_Emg_Filtered=self.Df_Emg_Raw.apply(lambda x: Implement_Notch_Filter(self.fs_emg,1,50, None, 3, 'butter', 
-                                                butter_bandpass_filter(x,self.lowcut,self.highcut, self.fs_emg, order=self.order)))
+                                                butter_bandpass_filter(x,self.lowcut,self.highcut, self.fs_emg, order=self.order))) #L'ultimo argomento rappresenta l'array di dati da filtrare che noi prfiltriamo.
 
             #CALCOLO DF SAVITZKY
             def df_Sav(vect):
@@ -355,7 +356,7 @@ class Application:
 
             #CALCOLO DF SEGNALI RMS
             def df_rms(vect):
-                rect=abs(vect.values)
+                rect =abs(vect.values)
                 for i in range(25):
                     rect[i]=int(1)
                 return window_rms(rect,self.rms_window_size)

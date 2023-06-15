@@ -55,9 +55,34 @@ except ImportError:
 
 ################################FEATURES IMPORTING######################################
 from Features.features import * # creo una reference con la subfolder Features importando lo script features.py
-
+from sklearn.preprocessing import MinMaxScaler
 #importo funzioni di pre-processing
-from PreProcessing.processing import butter_bandpass, butter_bandpass_filter, Implement_Notch_Filter
+from PreProcessing.processing import *
+
+#################################### LIBRARIES THAT I NEED FOR THE RNN MODEL##################
+import scipy as sp 
+from scipy import signal
+#from signal import butter
+import numpy as np
+from scipy import signal
+import matplotlib.pyplot as plt
+from pathlib import Path
+#import librosa
+import sklearn
+import pandas as pd
+import tensorflow as tf
+from tensorflow import keras
+from keras.models import load_model
+
+device_name = tf.test.gpu_device_name()
+if device_name != '/device:GPU:0':
+  print(device_name,' GPU device not found')
+  #raise SystemError('GPU device not found')
+else:
+  print('I Found a GPU! at: {}'.format(device_name))
+
+
+
 
 
 ####################################### Roberto part ##############################################
@@ -538,9 +563,15 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                 self.lap_inserted = True
                 self.lap_count = self.lap_count+1
 
+            
+             #I create a enpty dataframe
             def on_timer(self, event):
 
                 """Acquires and adds some data at the end of each signal (real-time signals)."""
+                #a dataframe to collect all the 8 channel data before sending it to to the LSTM model to predict them
+                df_toLSTM= pd.DataFrame(columns=['g00', 'g01', 'g02', 'g03','g10', 'g11', 'g12', 'g13'])
+                
+                
                 #implementa una normalizazione automatica con un max e un min precomputato 
                 def normalization(vect, new_min= 0.2,new_max= 1):
                     """
@@ -559,7 +590,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                     # k = #di sample campionati prima di essere processiti ed inviati, 
                     #k_osc = 256
                     #if i put a k_osc of 25 wiht a Fs= 1000 I will have the osc window lenght=25*20=500 ms 
-                    k = i =  400
+                    k = i =  330 #- 200) #it must be a power of 2 to make the reshaping works fine 
+                    #window_rms=200 
                     #i = k/2 #50% overlap
                     #lists that will contain the new points
                     g00=[] # ogni lista avrà alla fine di ogni ciclo k elementi prima di essere spedita via OSC
@@ -657,42 +689,58 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                             
                             i-= 1
                         
-                      
-                        sos = signal.butter(5, [30,300], 'bandpass', fs=1000, output='sos') #second order section filter band pass
+                        
+                        sos = signal.butter(5, [20,350], 'bandpass', fs=1000, output='sos') #second order section filter band pass
 
                         ##########################################PLOTTING ARRAYS#########################
                         #casting from list to np.array and float32 then applying a band pass filter 
                         g00_plot= np.asarray([i * amplitudes for i in g00_plot])
                         g00_plot.astype(np.float32)
+                        #g00_plot= signal.sosfilt(sos,g00_plot)
+                        g00_plot= Implement_Notch_Filter(1000,1,50, None, 3, 'bessel', g00_plot)# 5 is the bandwith of the notch cut 
                         g00_plot= signal.sosfilt(sos,g00_plot)
 
                         #butter(order=5, 20, fs=1000, btype='highpass', analog=False, output= 'sos')
                         g01_plot=np.asarray([i * amplitudes for i in g01_plot])
                         g01_plot.astype(np.float32)
+                        #g01_plot= signal.sosfilt(sos,g01_plot)
+                        g01_plot= Implement_Notch_Filter( 1000 ,1,50, None, 5, 'bessel', g01_plot)
                         g01_plot= signal.sosfilt(sos,g01_plot)
 
                         g02_plot=np.asarray([i * amplitudes for i in g02_plot])
                         g02_plot.astype(np.float32)
+                        
+                        g02_plot= Implement_Notch_Filter( 1000 ,1,50, None, 5, 'bessel', g02_plot)
                         g02_plot= signal.sosfilt(sos,g02_plot)
 
                         g03_plot=np.asarray([i * amplitudes for i in g03_plot])
                         g03_plot.astype(np.float32)
+                        
+                        g03_plot= Implement_Notch_Filter( 1000 ,1,50, None, 5, 'bessel', g03_plot)
                         g03_plot= signal.sosfilt(sos,g03_plot)
 
                         g10_plot=np.asarray([i * amplitudes for i in g10_plot ])
                         g10_plot.astype(np.float32)
+                        
+                        g10_plot= Implement_Notch_Filter(1000,1,50, None, 5, 'bessel', g10_plot)
                         g10_plot= signal.sosfilt(sos,g10_plot)
 
                         g11_plot=np.asarray([i * amplitudes for i in g11_plot])
                         g11_plot.astype(np.float32)
+                        
+                        g11_plot= Implement_Notch_Filter(1000,1,50, None, 5, 'bessel', g11_plot)
                         g11_plot= signal.sosfilt(sos,g11_plot)
 
                         g12_plot=np.asarray([i * amplitudes for i in g12_plot])
                         g12_plot.astype(np.float32)
+                       
+                        g12_plot= Implement_Notch_Filter(1000,1,50, None, 5, 'bessel', g12_plot)
                         g12_plot= signal.sosfilt(sos,g12_plot)
 
                         g13_plot=np.asarray([i * amplitudes for i in g13_plot])
                         g13_plot.astype(np.float32)
+                        
+                        g13_plot= Implement_Notch_Filter(1000,1,50, None, 5, 'bessel', g13_plot)
                         g13_plot= signal.sosfilt(sos,g13_plot)
                       
                         
@@ -703,8 +751,31 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         packings.append(packing_time)
 
                         #################################### FEATURE ARRAY ##############################
+                        
+                        #populating the column of the pandas dataframe before sending it 
+                        # 
+                        """
+                        df_toLSTM['g00'] = g00
+                        df_toLSTM['g01'] = g01
+                        df_toLSTM['g02'] = g02
+                        df_toLSTM['g03'] = g03
 
-                        """ Hampel function to smooth out the singnal"""
+                        df_toLSTM['g10'] = g10
+                        df_toLSTM['g11'] = g11
+                        df_toLSTM['g12'] = g12
+                        df_toLSTM['g13'] = g13
+
+                        #I have to compute the bandpass and then the windows rms with the preprocessing functin that feed it to the model
+                        model = load_model('firstPrototype\Scripts\keras_model\sEMG_binary_classifier_128_thirdAcquisition.h5')
+                        df_toLSTM_preprocessed = RNN_input_preprocessing(df_toLSTM)
+                        # Make a prediction using the model
+                        prediction = model.predict(df_toLSTM_preprocessed)
+
+                        """
+                        """  
+                         Hampel function to smooth out the singnal
+                        
+                        
                         #FIRST WE REMOVE THE PEAKS WITH HAMPEL 
                         g00_h, idx_00, medians_00, sd_00 = hampel(g00)
                         g01_h, idx_01, medians_01, sd_01 = hampel(g01)
@@ -724,46 +795,46 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         #THEN WE APPLY THE BAND PASS TO FUTHER REMOVE REMAIN NOISE 
 
-                        g00_h_bandpassed= signal.sosfilt(sos, g00_h.astype(np.float32))
-                        g01_h_bandpassed= signal.sosfilt(sos,g01_h.astype(np.float32))
-                        g02_h_bandpassed= signal.sosfilt(sos,g02_h.astype(np.float32))
-                        g03_h_bandpassed= signal.sosfilt(sos,g03_h.astype(np.float32))
-                        g10_h_bandpassed= signal.sosfilt(sos,g10_h.astype(np.float32))
-                        g11_h_bandpassed= signal.sosfilt(sos,g11_h.astype(np.float32))
-                        g12_h_bandpassed= signal.sosfilt(sos,g12_h.astype(np.float32))
-                        g13_h_bandpassed= signal.sosfilt(sos,g13_h.astype(np.float32))
+                        g00_bandpassed= signal.sosfilt(sos, g00_h.astype(np.float32))
+                        g01_bandpassed= signal.sosfilt(sos,g01_h.astype(np.float32))
+                        g02_bandpassed= signal.sosfilt(sos,g02_h.astype(np.float32))
+                        g03_bandpassed= signal.sosfilt(sos,g03_h.astype(np.float32))
+                        g10_bandpassed= signal.sosfilt(sos,g10_h.astype(np.float32))
+                        g11_bandpassed= signal.sosfilt(sos,g11_h.astype(np.float32))
+                        g12_bandpassed= signal.sosfilt(sos,g12_h.astype(np.float32))
+                        g13_bandpassed= signal.sosfilt(sos,g13_h.astype(np.float32))
 
                     
                         
 
                         osc_list_RMS_firstGrad_secondGrad = [] 
                         
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g00_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g01_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g02_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g03_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g10_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g11_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g12_h_bandpassed))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g13_h_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g00_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g01_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g02_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g03_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g10_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g11_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g12_bandpassed))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(g13_bandpassed))
 
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g00_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g01_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g02_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g03_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g10_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g11_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g12_h_bandpassed)))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g13_h_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g00_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g01_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g02_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g03_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g10_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g11_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g12_bandpassed)))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(g13_bandpassed)))
 
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g00_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g01_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g02_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g03_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g10_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g11_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g12_h_bandpassed))))
-                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g13_h_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g00_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g01_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g02_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g03_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g10_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g11_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g12_bandpassed))))
+                        osc_list_RMS_firstGrad_secondGrad.append(RMS(np.gradient(np.gradient(g13_bandpassed))))
     
                        
                         osc_list_RMS=[] #per ogni channel costruisco una lista di 4 elem che mando al wekinator con 4 input 
@@ -781,7 +852,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         osc_list_ZC_MAV = [] # 16 params list w/ 2 features 
 
-                         
+                    
 
                         osc_list_ZC_MAV.append(float(ZC(g00_plot)))
                         osc_list_ZC_MAV.append(float(ZC(g01_plot)))
@@ -832,15 +903,15 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         osc_list_zc_mav_rms.append(RMS(g11_plot))
                         osc_list_zc_mav_rms.append(RMS(g12_plot))
                         osc_list_zc_mav_rms.append(RMS(g13_plot))
-
-
-
+                        """
+                        
+                        
                         #################################################### OSC SENDING ##########################################################
 
                         #client1.send_message('/channel_0_0', g00_h)   
-                        client5.send_message('/wek/inputs', osc_list_RMS_firstGrad_secondGrad)  # mando al Real time mapping sulla porta 57125: RMS, 1° gradiente, 2° gradiente
-                        client6.send_message('/wek/inputs', osc_list_ZC_MAV)    # mando al DTW sulla porta 57121: 8 input ZC e MAV e lo uso per allenare la regressione in tempo reale
-                        client2.send_message('/wek/inputs', osc_list_ZC_MAV)
+                        #client5.send_message('/wek/inputs', np.round(prediction.T).tolist())  # mando al Real time mapping sulla porta 57125: RMS, 1° gradiente, 2° gradiente
+                        #client6.send_message('/wek/inputs', osc_list_ZC_MAV)    #mando al DTW sulla porta 57121: 8 input ZC e MAV e lo uso per allenare la regressione in tempo reale
+                        #client2.send_message('/wek/inputs', osc_list_ZC_MAV)
                         
                         #client7.send_message('/wek/inputs',osc_list_ZC_MAV) #sulla porte 57127 mando gli 8 input ZC e MAV per allenare il DTW, quello che classifica le gesture 
                         #client1.send_message('/channel_1_0',osc_list_RMS)           
@@ -861,22 +932,22 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         ######################## PRINTING THE FEATURE VALLUES#########################################
                         print('\n') 
-                        print('the ZCs: ', ZC(g00_plot),' ', ZC(g01_plot), ' ', ZC(g02_plot), ' ',ZC(g03_plot), ' ', ZC(g10_plot), ZC(g11_plot), ' ', ZC(g12_plot), ' ', ZC(g13_plot))
-                        print('the MAV : {:0.3f}, {:0.3f},{:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}'.format(MAV(g00_plot), MAV(g01_plot),  MAV(g02_plot), MAV(g03_plot), MAV(g10_plot),MAV(g11_plot), MAV(g12_plot), MAV(g13_plot)))
-                        print('the RMSs raw: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(RMS(g00), RMS(g01), RMS(g02), RMS(g03), RMS(g10), RMS(g11), RMS(g12), RMS(g13)))
-                        formattedList_ZC_1= ["%.2f" % member for member in osc_list_ZC_MAV[0:3]]
-                        formattedList_ZC_2 = ["%.2f" % member for member in osc_list_ZC_MAV[7:13]]
-                        formattedList_ZC = formattedList_ZC_1 + formattedList_ZC_2
-                        formattedList_ZC_MAV= ["%.3f" % member for member in osc_list_ZC_MAV] 
-                        print('the ZC and MAV: ', formattedList_ZC_MAV)
-                        
-                        formattedList_RMS = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[0:7]]
-                        formattedList_RMSFirstGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[8:15]]
-                        formattedList_RMSSecGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[16:23]]
-                        print('the RMS : ', formattedList_RMS)
-                        print('the RMS  firstGrad: ', formattedList_RMSFirstGrad)
-                        print('the RMS  SectGrad: ', formattedList_RMSSecGrad)
-                        print('\n') 
+                        #print('the ZCs: ', ZC(g00_plot),' ', ZC(g01_plot), ' ', ZC(g02_plot), ' ',ZC(g03_plot), ' ', ZC(g10_plot), ZC(g11_plot), ' ', ZC(g12_plot), ' ', ZC(g13_plot))
+                        #print('the MAV : {:0.3f}, {:0.3f},{:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}, {:0.3f}'.format(MAV(g00_plot), MAV(g01_plot),  MAV(g02_plot), MAV(g03_plot), MAV(g10_plot),MAV(g11_plot), MAV(g12_plot), MAV(g13_plot)))
+                        #print('the RMSs raw: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(RMS(g00), RMS(g01), RMS(g02), RMS(g03), RMS(g10), RMS(g11), RMS(g12), RMS(g13)))
+                        #formattedList_ZC_1= ["%.2f" % member for member in osc_list_ZC_MAV[0:3]]
+                        #formattedList_ZC_2 = ["%.2f" % member for member in osc_list_ZC_MAV[7:13]]
+                        #formattedList_ZC = formattedList_ZC_1 + formattedList_ZC_2
+                        #formattedList_ZC_MAV= ["%.3f" % member for member in osc_list_ZC_MAV] 
+                        #print('the ZC and MAV: ', formattedList_ZC_MAV)
+                        #print('The current prediction is: ', np.round(prediction.T))
+                        #formattedList_RMS = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[0:7]]
+                        #formattedList_RMSFirstGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[8:15]]
+                        #formattedList_RMSSecGrad = ["%.2f" % member for member in osc_list_RMS_firstGrad_secondGrad[16:23]]
+                        #print('the RMS : ', formattedList_RMS)
+                        #print('the RMS  firstGrad: ', formattedList_RMSFirstGrad)
+                        #print('the RMS  SectGrad: ', formattedList_RMSSecGrad)
+                        #print('\n') 
 
                         
                         #print('the RMSs: {:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f},{:0.3f}, {:0.3f}'.format(osc_list_RMS_firstGrad_secondGrad[0:7]))
@@ -885,11 +956,11 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         #print('/n')
                         
 
-                        post_sent = datetime.datetime.now()
+                        #post_sent = datetime.datetime.now()
                         #print("post-sent: ", post_sent)
-                        sending_time = post_sent.microsecond - post_hampeling.microsecond
+                        #sending_time = post_sent.microsecond - post_hampeling.microsecond
                         #print("sending time: ", sending_time)
-                        sends.append(sending_time)
+                        #sends.append(sending_time)
                         
                         # y server per il plotting
                         y[:, :-k] = y[:, k:] #tolgo i primi k campioni
@@ -907,6 +978,25 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
                         self.program['a_position'].set_data(y.ravel().astype(np.float32))
                         self.update()
+                        df_toLSTM['g00'] = g00
+                        df_toLSTM['g01'] = g01
+                        df_toLSTM['g02'] = g02
+                        df_toLSTM['g03'] = g03
+
+                        df_toLSTM['g10'] = g10
+                        df_toLSTM['g11'] = g11
+                        df_toLSTM['g12'] = g12
+                        df_toLSTM['g13'] = g13
+
+                        #I have to compute the bandpass and then the windows rms with the preprocessing functin that feed it to the model
+                        model = load_model('firstPrototype\Scripts\keras_model\sEMG_binary_classifier_128_thirdAcquisition.h5')
+                        df_toLSTM_preprocessed = RNN_input_preprocessing(df_toLSTM)
+                        # Make a prediction using the model
+                        prediction = model.predict(df_toLSTM_preprocessed)
+                        print('The current prediction is: ', np.round(prediction.T))
+
+                    
+
 
                     except IndexError: #exception se la lettuta da USB risulta incompleta
                         print('Problemi di lettura da USB')

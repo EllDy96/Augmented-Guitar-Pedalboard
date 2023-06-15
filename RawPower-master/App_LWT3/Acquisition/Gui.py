@@ -36,6 +36,15 @@ from Acquisition.Acquisition import continuos_acquiring, continuos_optitrack
 from BLE.ble import scan_BLE, BLE_acquiring, service_explorer
 from CustomTree.customtree import customtree
 
+# Cose aggiunte da mariana 
+import pandas as pd
+import PySimpleGUI as sg
+from ast import Assign
+from operator import index
+from tkinter.font import BOLD
+from turtle import right
+from typing_extensions import Self
+from matplotlib import markers
 class Acquisition_app():
 
     additional_data_form=''
