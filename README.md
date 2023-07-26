@@ -6,7 +6,7 @@ The proposed augmented musical instrument is based on the conjunction of electro
 ![Probem formulation](/introductiveImages/problemFormulation.png)
 We proposed a protocol to incorporate guitarists' gestures into the interaction procedure, allowing guitarists to interact with their effects no longer with their feet but by performing a predefined set of techniques (such as fingerpicking, tapping, strumming...); in this way, it is no longer the press of a bottom to trigger one pedalboard preset but the performing of a technique. 
 
-For a detailed explanation please read the full [paper]() or the [Executive Summary]
+For a detailed explanation please read the [scientific paper](/article/Thesis___DavideLionetti.pdf) or the [Executive Summary](/article/Executive_Summary_DavideLionetti.pdf)
 ## Intra-subject Dataset
 For the training process, we defined a systematic and scalable procedure. ![Dataset creation]()
 
