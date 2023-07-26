@@ -519,8 +519,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
 
 
-        classifier = load_model('firstPrototype\Scripts\keras_model\classification_cristian_3.h5')
-        reggression_model= load_model('firstPrototype\Scripts\keras_model\EMG_regression_cristian.h5')
+        classifier = load_model('Prototype\Scripts\keras_model\sEMG_classifier_davide_final_4.h5')
+        reggression_model= load_model('Prototype\Scripts\keras_model\EMG_regression_davide_final.h5')
         #last_prediction_index = 0 # this is the last predicted class's idex, if the classfier predict the same class twice the system do not send two equale OSC messages
 
 
@@ -1025,7 +1025,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         min_values_cecilia= [3.330264824962351, 0.0481226535365401, 0.330478713341228, 0.8847732947158915, 2.12554451576368, 0.6799191875169733, 0.2122946526534737, 0.4320883441768332]
                         min_values_cristian= [2.319893840392742, 2.145905628241556, 2.179435382899346, 2.982942725107334, 3.912528839477762, 3.614555332901144, 0.9258777427679944, 2.243573108640808]
                         max_values_cristin = [8150.691835221304, 6928.898902450901, 2354.458671276233, 7868.77953168015, 18587.92917830209, 8167.746761926032, 4526.435877491072, 2580.471057169593]
-                        df_preProcessing = RNN_input_preprocessing(df_toBLSTM,max_values_cristin, min_values_cristian)
+                        df_preProcessing = RNN_input_preprocessing(df_toBLSTM,max_values_davide, min_values_davide)
 
                         # Make a prediction using the model
                         class_prediction = classifier.predict(df_preProcessing)
@@ -1062,7 +1062,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         if class_prediction_index != self.last_prediction_index:
                             self.last_last_pred_index = self.last_last_pred_index + 1
                             print(self.last_last_pred_index)
-                            if self.last_last_pred_index > 6:
+                            if self.last_last_pred_index > 5:
                                 client6.send_message('/preset',  int(class_prediction_index))
                                 print('CLASS CHANGED:    ', class_prediction_index)
                                 self.last_prediction_index = class_prediction_index
