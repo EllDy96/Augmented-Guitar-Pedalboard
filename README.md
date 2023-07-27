@@ -8,7 +8,7 @@ We proposed a protocol to incorporate guitarists' gestures into the interaction 
 
 For a detailed explanation please read the [scientific paper](/article/Thesis___DavideLionetti.pdf) or the [Executive Summary](/article/Executive_Summary_DavideLionetti.pdf)
 ## Intra-subject Dataset
-For the training process, we defined a systematic and scalable procedure. ![Dataset creation]()
+For the training process, we defined a systematic and scalable procedure, put into practice on four guitarists. ![Dataset creation]()
 
 ### How to use it
 The system is written using Python 3.10.8 and Tensorflow 2 within a Conda environment, please install the dependencies using the [environment file](/anacondaRequirements/environment.yml).
