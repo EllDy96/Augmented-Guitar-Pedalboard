@@ -8,6 +8,7 @@ We proposed a protocol to incorporate guitarists' gestures into the interaction 
 
 For a detailed explanation please read the [scientific paper](/article/Thesis___DavideLionetti.pdf) or the [Executive Summary](/article/Executive_Summary_DavideLionetti.pdf)
 ## Intra-subject Dataset
+![Dataset Creation](/introductiveImages/dataset__creation.png)
 For the training process, we defined a systematic and scalable procedure, put into practice on four guitarists.
 The proposed  tool is intra-subject, meaning  that it is built  upon the stylistic  decision of the user, that train  it. For this reason, we define a procedural approach to train  the system.  The dataset was meticulously  constructed following a strict  procedure:
 
