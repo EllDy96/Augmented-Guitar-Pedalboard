@@ -12,11 +12,11 @@
 
 from scipy import signal
 import serial 
-from serial import Serial
+#from serial import Serial
 #import pyserial as serial
 #import serial.tools.list_ports #utilizzata per elencare le porte COM disponibili
 #from serial.tools import list_ports
-import tools
+#import tools
 import argparse
 from pythonosc import udp_client
 
@@ -44,14 +44,14 @@ from vispy import app
 import numpy as np
 import math
 
-try:
+#try:
 
-    from PyQt6.QtGui import QFont, QIcon
-    from PyQt6.QtWidgets import (QWidget, QPlainTextEdit, QLabel, QPushButton,
-                                 QHBoxLayout, QVBoxLayout, QGridLayout)
-except ImportError:
-    from PyQt5.QtGui import (QWidget, QPlainTextEdit, QFont, QLabel,
-                             QPushButton, QHBoxLayout, QVBoxLayout,QGridLayout)
+#from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtWidgets import (QWidget, QLabel, QGridLayout)
+#from PyQt6.QtWidgets import (QWidget, QLabel, QGridLayout)
+#except ImportError:
+    #from PyQt5.QtGui import (QWidget, QPlainTextEdit, QFont, QLabel,
+    #                          QPushButton, QHBoxLayout, QVBoxLayout,QGridLayout)
 
 ################################FEATURES IMPORTING######################################
 from Features.features import * # creo una reference con la subfolder Features importando lo script features.py
@@ -519,8 +519,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
 
 
-        classifier = load_model('Prototype\Scripts\keras_model\sEMG_classifier_davide_final_4.h5')
-        reggression_model= load_model('Prototype\Scripts\keras_model\EMG_regression_davide_final.h5')
+        classifier = load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\sEMG_classifier_davide_final_4.h5')
+        reggression_model= load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\EMG_regression_davide_final.h5')
         #last_prediction_index = 0 # this is the last predicted class's idex, if the classfier predict the same class twice the system do not send two equale OSC messages
 
 

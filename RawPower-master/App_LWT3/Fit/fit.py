@@ -1,7 +1,7 @@
 #modulo contenente la funzione per aprire i file .fit
 import numpy as np
 import pandas as pd
-from fitparse import FitFile
+#from fitparse import FitFile
 import datetime
 
 def open_fit(filename,fs_fit):

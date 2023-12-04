@@ -38,7 +38,7 @@ from CustomTree.customtree import customtree
 
 # Cose aggiunte da mariana 
 import pandas as pd
-import PySimpleGUI as sg
+#import PySimpleGUI as sg
 from ast import Assign
 from operator import index
 from tkinter.font import BOLD
@@ -83,7 +83,7 @@ class Acquisition_app():
 
         #file_path=os.path.abspath(os.path.join(__file__, '..','BLE.png'))
         # SPOSTARE L'IMMAGINE ALL'INTERNO DELLA CARTELLA!
-        photo = tk.PhotoImage(file = "C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\GItDesktop\MAE_Thesis\RawPower-master\App_LWT3\Acquisition\BLE.png")
+        photo = tk.PhotoImage(file = "C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\RawPower-master\App_LWT3\Acquisition\BLE.png")
         #photo = tk.PhotoImage(file = "C:\\Users\\rales\OneDrive\Desktop\LWT3\RawPower\RawPower\App_LWT3\Acquisition\BLE.png")
 
         # Resizing image to fit on button 
@@ -551,7 +551,7 @@ class Acquisition_app():
         """
         read description file and fill athlet's name, date of birth, height and weight
         """
-        in_dir=os.path.expanduser('~\OneDrive - Politecnico di Milano\Documenti\Recordings')
+        in_dir=os.path.expanduser('C:\\Users\Administrator\OneDrive\Documents\Recordings')
         if not (os.path.isdir(in_dir)):
             os.mkdir(in_dir)
         description_file=filedialog.askopenfilename(title='select a decription file',initialdir=f'{in_dir}',filetypes = (("text files","description.txt"),("all files","*.*")))
@@ -2039,7 +2039,7 @@ class Acquisition_app():
                         #se sono presenti degli spazi vengono sostituiti con '_'
                         name=name.replace(" ", "_")
 
-                        documents_path=os.path.expanduser('C:\\Users\david\OneDrive - Politecnico di Milano\Documenti')
+                        documents_path=os.path.expanduser('C:\\Users\Administrator\OneDrive\Documents')
                         if not (os.path.isdir(os.path.join(f'{documents_path}','Recordings'))): #se non esiste questa directory la creo
                                 os.mkdir(os.path.join(f'{documents_path}','Recordings'))
                         if not (os.path.isdir(os.path.join(f'{documents_path}','Recordings',f'{name}'))): #se non esiste questa directory la creo

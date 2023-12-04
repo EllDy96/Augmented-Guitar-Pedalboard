@@ -32,7 +32,7 @@ from PIL import ImageTk, Image
 from sklearn.preprocessing import StandardScaler
 from sklearn import preprocessing
 
-import peakutils
+#import peakutils
 
 import csv
 
@@ -176,7 +176,7 @@ class Application:
 
         # SPOSTARE L'IMMAGINE ALL'INTERNO DELLA CARTELLA!
 
-        self.img_path='C:\\Users\david\OneDrive - Politecnico di Milano\Documenti\GItDesktop\MAE_Thesis\RawPower-master\App_LWT3\LWT3.jpg'
+        self.img_path='C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\RawPower-master\App_LWT3\LWT3.jpg'
         #self.img_path='C:\\Users\\rales\OneDrive\Desktop\LWT3\RawPower\RawPower\App_LWT3\LWT3.jpg'
 
         self.img=ImageTk.PhotoImage(Image.open(self.img_path)) #immagine iniziale
