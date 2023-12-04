@@ -24,7 +24,7 @@ To embark on your journey with the Augmented Guitar Pedalboard, follow these ste
 
 1. **Clone the Repository:** `git clone https://github.com/your-username/augmented-guitar-pedalboard.git`
 2. **Install Dependencies:** The system is written using Python 3.10.8 and Tensorflow 2 within a Conda environment, please create a Conda environment using the dependencies listed in the [environment file](/anacondaRequirements/environment_augmentedPedalboard.yml).
-3. **Explore the Code:** Dive into the codebase and discover the magic behind our innovative audio effect. You will need Max 8 and an IDE such as Visual Studio Code. 
+3. **Explore the Code:** Dive into the codebase and discover the magic behind our innovative audio effect. You will need Max 8 and a text editor such as Visual Studio Code. 
 
 ## Usage
 
