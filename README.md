@@ -59,4 +59,22 @@ To train the system effectively, we implemented a systematic and scalable proced
 The dataset was meticulously collected from four guitarists, encompassing a diverse range of expertise levels, gender representation, and anthropometric measures such as heights, weights, and muscle shapes. For detailed documentation, refer to the [Guitar Gesture sEMG Dataset](https://github.com/EllDy96/Augmented-Guitar-Pedalboard/tree/main/dataset).
 
 
+## About
+The Augmented Guitar Pedalboard project has been developed for my M.Sc final thesis in Music Engineering at Politecnico di Milano during an internship at [LWT3](https://lwt3.com/). it is driven by my passion for pushing the boundaries of musical expression. Join me on this journey as we explore the integration of muscle signals into artistic performance.
+
+## Contributing
+
+We welcome contributions from the community! Whether you're passionate about signal processing, deep learning, or musical innovation, your expertise is valuable. Check out our [contribution guidelines](CONTRIBUTING.md) to get started.
+
+
+## Acknowledgments
+I want to thank  all the  LWT3  members  for being like a second house for me during  my internship while I was developing  this  project, especially Paolo  Belluco for the  continuous  support and  all the  vital  advices,  Samuele Polistina for the Max/MSP support, Luigi Attoresi  for the tailoring  work to my torn  pants,  Roberto  Alessandri for being the best fellow artist friend I could imagine.  I also want to thank  Giusy Caruso,  who inspired me a lot and strengthened my dream  of becoming an artistic researcher,  I will become like you one-day Giusy.  I want to thank  my professor Massimiliano  Zanoni  for the  brilliant knowledge that he gave to me during  his course and the support for this project,  I am very grateful  to him for reminding  me that you can also be an artist being a programmer.
+
+I extend our gratitude to the open-source community and fellow musicians for their support and inspiration.
+
+
+
+Happy coding and happy playing! 🎶🤘
+
+
 
