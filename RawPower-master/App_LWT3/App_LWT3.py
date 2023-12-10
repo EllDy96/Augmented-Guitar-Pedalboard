@@ -201,16 +201,16 @@ class Application:
 
         #INIZIALIZZAZIONE PARAMETRI FILTRO
         self.lowcut = 30.0 #inizializzazione frequenza taglia basso
-        self.highcut = 300 #prima era 499.9 #inizializzazione frequenza taglia alto (verrà comunque detrminata automaticamente all'apertura del file EMG)
+        self.highcut = 300.0 #prima era 499.9 #inizializzazione frequenza taglia alto (verrà comunque detrminata automaticamente all'apertura del file EMG)
         self.order=5 #ordine del filtro di butterworth
 
         self.default_low = 30.0 #inizializzazione frequenza taglia basso utilizzata per ripristinare i valori di default
-        self.default_high = 499.9 #inizializzazione frequenza taglia alto utilizzata per ripristinare i valori di default
+        self.default_high = 350.9 #inizializzazione frequenza taglia alto utilizzata per ripristinare i valori di default
         self.default_order = 5 #ordine del filtro di butterworth utilizzata per ripristinare i valori di default
 
         #variabili utilizzate per testare nuovi parametri del filtro
         self.test_lowcut = 30.0 #inizializzazione frequenza taglia basso di test
-        self.test_highcut = 499.9 #inizializzazione frequenza taglia alto di test
+        self.test_highcut = 350.0 #inizializzazione frequenza taglia alto di test
         self.test_order=5 #ordine del filtro di butterworth di test
 
         #INIZIALIZZAZIONE PARAMETRI PER IL CALCOLO DELLE FEATURES
@@ -536,7 +536,7 @@ class Application:
         """
         self.start_loading=False #start loading inizialmente è False, diventerà True se nella directory sarà presente un file con le caratteristiche del file EMG
         self.check_all_channels_disconnected=False #variabile che indica che tutti i canali erano disconnessi
-        in_dir=os.path.expanduser('~\\OneDrive - Politecnico di Milano\Documenti\Recordings')
+        in_dir=os.path.expanduser('C:\\Users\Administrator\OneDrive\Documents\Recordings')
         if not (os.path.isdir(in_dir)):
             os.mkdir(in_dir)
         #file_directory=askopendirname(title='select folder',initialdir=f'{in_dir}')

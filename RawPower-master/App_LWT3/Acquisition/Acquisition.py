@@ -519,8 +519,8 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
 
 
 
-        classifier = load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\sEMG_classifier_davide_final_4.h5')
-        reggression_model= load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\EMG_regression_davide_final.h5')
+        classifier = load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\DavideLionetti\sEMG_classifier_davide_afterThesis_5s.h5')
+        reggression_model= load_model('C:\\Users\Administrator\OneDrive\Documents\GitHub\Augmented-Guitar-Pedalboard\Prototype\Scripts\keras_model\DavideLionetti\EMG_regression_davide_final.h5')
         #last_prediction_index = 0 # this is the last predicted class's idex, if the classfier predict the same class twice the system do not send two equale OSC messages
 
 
@@ -1028,10 +1028,12 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         df_preProcessing = RNN_input_preprocessing(df_toBLSTM,max_values_davide, min_values_davide)
 
                         # Make a prediction using the model
-                        class_prediction = classifier.predict(df_preProcessing)
-                        reggression_values= reggression_model.predict(df_preProcessing).flatten().tolist() #I have to convert from   2D np.array to  1D list  before sending the OSC 
+                        #class_prediction = classifier.predict(df_preProcessing)
+                        class_prediction = classifier.predict_on_batch(df_preProcessing)
+                        #reggression_values= reggression_model.predict(df_preProcessing).flatten().tolist() #I have to convert from   2D np.array to  1D list  before sending the OSC 
+                        reggression_values= reggression_model.predict_on_batch(df_preProcessing).flatten().tolist() # molto più efficente se gli mandi una batch sola come nel nostro caso
                         print('The current prediction is: ', np.argmax(class_prediction))
-                        print('The current regresson value is: ', reggression_values)
+                        #print('The current regresson values are: ', reggression_values)
                         class_prediction_index = int(np.argmax(class_prediction))
                         #client5.send_message('/LSTM/prediction', class_prediction_index)
                         """ 
@@ -1050,12 +1052,12 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                         #print( "this is the first value ", class_prediction_index, type(class_prediction_index))
                         # Send the OSC message
                         #client6.send(msg)
-                        client6.send_message('/ch1', reggression_values[0]) 
-                        client6.send_message('/ch2',  reggression_values[1])
-                        client6.send_message('/ch3',  reggression_values[2])
-                        client6.send_message('/ch4',  reggression_values[3]) 
-                        client6.send_message('/ch5',  reggression_values[4])
-                        client6.send_message('/ch6',  reggression_values[5])
+                        client6.send_message('regrescion/ch1', reggression_values[0]) 
+                        client6.send_message('regrescion/ch2',  reggression_values[1])
+                        client6.send_message('regrescion/ch3',  reggression_values[2])
+                        client6.send_message('regrescion/ch4',  reggression_values[3]) 
+                        client6.send_message('regrescion/ch5',  reggression_values[4])
+                        client6.send_message('regrescion/ch6',  reggression_values[5])
                         
 
                         #class_prediction_index 
@@ -1063,7 +1065,7 @@ def continuos_acquiring(com_number,start_event,stop_event,hide_event,delete_butt
                             self.last_last_pred_index = self.last_last_pred_index + 1
                             print(self.last_last_pred_index)
                             if self.last_last_pred_index > 5:
-                                client6.send_message('/preset',  int(class_prediction_index))
+                                client6.send_message('preset',  int(class_prediction_index))
                                 print('CLASS CHANGED:    ', class_prediction_index)
                                 self.last_prediction_index = class_prediction_index
                                 self.last_last_pred_index = 0
