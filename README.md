@@ -1,11 +1,10 @@
-# Augmented Guitar Pedalboard
+# Augmented Guitarist
 
-Welcome to the Augmented Guitar Pedalboard repository! 🎸🔊
+Welcome to the Augmented Guitarist repository! 🎸🔊
 
 ## Overview
-
-Explore the future of musical interaction with our innovative smart audio effect that combines muscular signals and deep learning analysis. We aim to revolutionize the guitarist's experience by introducing a novel interaction strategy able to autonomously control the effects of a pedalboard by analyzing the musician's muscular signal. 
-
+We aim to revolutionize the guitarist's experience by introducing a novel interaction strategy able to autonomously control the effects of a pedalboard by analyzing the musician's muscular signal. 
+The proposed system combines muscular signals and deep learning analysis to allow a smoother interaction between the guitarist and his/her pedalboard. 
 ## Key Features
 
 - **Muscular Signal Analysis:** Dynamically adapt the guitar sound by tracking the user's musical intentions by analyzing muscular contractions using wearable devices.
