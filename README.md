@@ -4,7 +4,7 @@ Welcome to the Augmented Guitarist repository! 🎸🔊
 
 ## Overview
 We aim to revolutionize the guitarist's experience by introducing a novel interaction strategy able to autonomously control the effects of a pedalboard by analyzing the musician's muscular signal. 
-The proposed system combines muscular signals and deep learning analysis to allow a smoother interaction between the guitarist and his/her pedalboard. 
+The proposed system combines muscular signals and deep learning analysis to allow a smoother interaction between the guitarist and his/her pedalboard. If you want to see the system in action, enjoy this   [video demonstration]([/introductiveImages/problemFormulation.png](https://www.youtube.com/watch?v=8_c5QavFDUA&ab_channel=Creative%2CIntelligent%26MultisensoryInteractions))
 ## Key Features
 
 - **Muscular Signal Analysis:** Dynamically adapt the guitar sound by tracking the user's musical intentions by analyzing muscular contractions using wearable devices.
