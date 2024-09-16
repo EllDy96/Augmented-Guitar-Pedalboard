@@ -1,4 +1,4 @@
-# Augmented Guitarist
+# Muscle-Augmented Guitar Pedalboard
 
 Welcome to the Augmented Guitarist repository! 🎸🔊
 
