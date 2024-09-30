@@ -1,9 +1,9 @@
 # Muscle-Augmented Guitar Pedalboard
 
-Welcome to the Augmented Guitarist repository! 🎸🔊
+Welcome to the Augmented Guitarist repository! This research has been published in the New Interface for Musical Expression 2024, full article 🎸  [here](Guided_Guitar_Pedalboard_Exploring_Interaction_Strategies_Through_Surface_Electromyography_and_Deep_Learning)🔊
 
 ## Overview
-We aim to revolutionize the guitarist's experience by introducing a novel interaction strategy able to autonomously control the effects of a pedalboard by analyzing the musician's muscular signal. 
+We aim to reshape the guitarist's experience by introducing a novel interaction strategy that can autonomously control a pedalboard's effects by analyzing the musician's muscular signal. 
 The proposed system combines muscular signals and deep learning analysis to allow a smoother interaction between the guitarist and his/her pedalboard. If you want to see the system in action, enjoy this   [YT video demonstration](https://www.youtube.com/watch?v=8_c5QavFDUA&ab_channel=Creative%2CIntelligent%26MultisensoryInteractions).
 ## Key Features
 
