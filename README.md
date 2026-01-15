@@ -67,12 +67,9 @@ We welcome contributions from the community! Whether you're passionate about sig
 
 
 ## Acknowledgments
-I want to thank  all the  LWT3  members  for being like a second house for me during  my internship while I was developing  this  project, especially Paolo  Belluco for the  continuous  support and  all the  vital  advices,  Samuele Polistina for the Max/MSP support, Luigi Attoresi  for the tailoring  work to my torn  pants,  Roberto  Alessandri for being the best fellow artist friend I could imagine.  I also want to thank  Giusy Caruso,  who inspired me a lot and strengthened my dream  of becoming an artistic researcher,  I will become like you one-day Giusy.  I want to thank  my professor Massimiliano  Zanoni  for the  brilliant knowledge that he gave to me during  his course and the support for this project,  I am very grateful  to him for reminding  me that you can also be an artist being a programmer.
+I want to thank  all the  LWT3  members  for being like a second house for me during  my internship while I was developing  this  project, especially Paolo  Belluco for the  continuous  support and  all the  vital  advices,  Samuele Polistina for the Max/MSP support, Luigi Attoresi  for the tailoring  work to my torn  pants,  Roberto  Alessandri for being the best fellow artist friend I could imagine.  I also want to thank  Giusy Caruso,  who inspired me a lot and strengthened my dream  of becoming an artistic researcher,  I will become like you one-day Giusy.  I want to thank  my professor Massimiliano  Zanoni  for the  brilliant knowledge that he gave to me during  his course and the support for this project,  I am very grateful  to him for reminding  me that you can also be an artist, while being a programmer. Last but not least, I want to thank the professor Luca Turchet, for all the energy, the suggestions, and the support that he gave to me during the last part of the project.
 
 I extend our gratitude to the open-source community and fellow musicians for their support and inspiration.
-
-
-
 Happy coding and happy playing! 🎶🤘
 
 
